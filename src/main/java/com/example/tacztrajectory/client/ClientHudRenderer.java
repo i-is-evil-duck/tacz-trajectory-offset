@@ -32,14 +32,14 @@ public class ClientHudRenderer {
         String text;
         int color;
         if (offset > 0) {
-            text = String.format("↑ Trajectory: +%.0f° UP", offset);
-            color = 0x55FF55; // Green for up
+            text = String.format("Trajectory: +%.2f° UP", offset);
+            color = 0x55FF55;
         } else if (offset < 0) {
-            text = String.format("↓ Trajectory: %.0f° DOWN", offset);
-            color = 0xFF5555; // Red for down
+            text = String.format("Trajectory: %.2f° DOWN", offset);
+            color = 0xFF5555;
         } else {
-            text = "→ Trajectory: 0° (Flat)";
-            color = 0xFFFFFF; // White for neutral
+            text = "Trajectory: 0.00° (Flat)";
+            color = 0xFFFFFF;
         }
 
         int textWidth = mc.font.width(text);

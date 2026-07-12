@@ -28,29 +28,19 @@ public class ClientKeyHandler {
         int key = event.getKey();
         int action = event.getAction();
 
-        // Only on press (not repeat/release)
-        if (action != GLFW.GLFW_PRESS) return;
+        if (action != GLFW.GLFW_PRESS && action != GLFW.GLFW_REPEAT) return;
 
         float delta = 0.0f;
         boolean reset = false;
 
-        if (key == GLFW.GLFW_KEY_UP) {
-            // UP arrow = increase upward offset (positive = shoot higher)
-            delta = 1.0f;
-        } else if (key == GLFW.GLFW_KEY_DOWN) {
-            // DOWN arrow = decrease offset (more downward)
-            delta = -1.0f;
-        } else if (key == GLFW.GLFW_KEY_RIGHT) {
-            // RIGHT arrow = also increase upward offset (alternative)
-            delta = 1.0f;
-        } else if (key == GLFW.GLFW_KEY_LEFT) {
-            // LEFT arrow = also decrease offset (alternative)
-            delta = -1.0f;
-        } else if (key == GLFW.GLFW_KEY_R) {
-            // R key = reset to zero
+        if (key == GLFW.GLFW_KEY_UP || key == GLFW.GLFW_KEY_RIGHT) {
+            delta = TrajectoryData.STEP;
+        } else if (key == GLFW.GLFW_KEY_DOWN || key == GLFW.GLFW_KEY_LEFT) {
+            delta = -TrajectoryData.STEP;
+        } else if (key == GLFW.GLFW_KEY_R && action == GLFW.GLFW_PRESS) {
             reset = true;
         } else {
-            return; // Not a key we care about
+            return;
         }
 
         if (reset) {

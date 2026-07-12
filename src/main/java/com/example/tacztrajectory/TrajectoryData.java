@@ -11,9 +11,9 @@ import java.util.UUID;
 public class TrajectoryData {
     private static final Map<UUID, Float> playerOffsets = new HashMap<>();
 
-    public static final float MAX_OFFSET = 45.0f;
-    public static final float MIN_OFFSET = -45.0f;
-    public static final float STEP = 1.0f;
+    public static final float MAX_OFFSET = 15.0f;
+    public static final float MIN_OFFSET = -15.0f;
+    public static final float STEP = 0.01f;
 
     public static float getOffset(Player player) {
         return playerOffsets.getOrDefault(player.getUUID(), 0.0f);
