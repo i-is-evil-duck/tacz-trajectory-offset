@@ -6,10 +6,10 @@ plugins {
 }
 
 version = '1.0.0'
-group = 'com.example.tacztrajectory'
+group = 'com.j3ly.tacz0ing'
 
 base {
-    archivesName = 'tacz-trajectory-offset'
+    archivesName = 'tacz0ing'
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
@@ -67,8 +67,8 @@ dependencies {
 }
 
 mixin {
-    add sourceSets.main, "tacztrajectory.mixins.json"
-    config "tacztrajectory.mixins.json"
+    add sourceSets.main, "tacz0ing.mixins.json"
+    config "tacz0ing.mixins.json"
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -79,14 +79,14 @@ jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
         attributes([
-            "Specification-Title"     : "tacztrajectory",
-            "Specification-Vendor"    : "example",
+            "Specification-Title"     : "tacz0ing",
+            "Specification-Vendor"    : "i-is-evil-duck",
             "Specification-Version"   : "1",
             "Implementation-Title"    : project.name,
             "Implementation-Version"  : project.jar.archiveVersion,
-            "Implementation-Vendor"   : "example",
+            "Implementation-Vendor"   : "i-is-evil-duck",
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-            "MixinConfigs"            : "tacztrajectory.mixins.json"
+            "MixinConfigs"            : "tacz0ing.mixins.json"
         ])
     }
 }

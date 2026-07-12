@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.j3ly.tacz0ing.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "MixinEntityKineticBullet"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "refmap": "tacz0ing.refmap.json"
+}

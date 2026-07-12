@@ -1,10 +1,10 @@
 Manifest-Version: 1.0
-Specification-Title: tacztrajectory
-Specification-Vendor: example
+Specification-Title: tacz0ing
+Specification-Vendor: i-is-evil-duck
 Specification-Version: 1
 Implementation-Title: tacz-trajectory-offset
 Implementation-Version: 1.0.0
-Implementation-Vendor: example
-Implementation-Timestamp: 2026-07-11T19:57:16-0700
-MixinConfigs: tacztrajectory.mixins.json
+Implementation-Vendor: i-is-evil-duck
+Implementation-Timestamp: 2026-07-11T20:13:17-0700
+MixinConfigs: tacz0ing.mixins.json
 
