@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Specification-Title: tacztrajectory
+Specification-Vendor: example
+Specification-Version: 1
+Implementation-Title: tacz-trajectory-offset
+Implementation-Version: 1.0.0
+Implementation-Vendor: example
+Implementation-Timestamp: 2026-07-11T19:51:13-0700
+MixinConfigs: tacztrajectory.mixins.json
+
