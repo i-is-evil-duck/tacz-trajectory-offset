@@ -1,67 +1,88 @@
 package com.j3ly.tacz0ing;
 
+import com.tacz.guns.api.item.IGun;
+import com.tacz.guns.api.item.attachment.AttachmentType;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class TrajectoryData {
-    private static final String PITCH_NBT_KEY = "tacz0ing_trajectory_pitch";
-    private static final String YAW_NBT_KEY = "tacz0ing_trajectory_yaw";
-    private static final String LOCK_NBT_KEY = "tacz0ing_trajectory_locked";
+    private static final String PITCH_PREFIX = "tacz0ing_pitch_";
+    private static final String YAW_PREFIX = "tacz0ing_yaw_";
+    private static final String LOCK_KEY = "tacz0ing_trajectory_locked";
 
     public static final float MAX_OFFSET = 5.0f;
     public static final float MIN_OFFSET = -5.0f;
     public static final float STEP = 0.01f;
 
-    // --- Pitch (vertical) ---
+    /**
+     * Get the ResourceLocation ID of the scope attached to the player's held gun.
+     * Returns null if no gun or no scope.
+     */
+    public static ResourceLocation getScopeId(Player player) {
+        ItemStack gunStack = player.getMainHandItem();
+        IGun igun = IGun.getIGunOrNull(gunStack);
+        if (igun == null) return null;
+        ResourceLocation scopeId = igun.getAttachmentId(gunStack, AttachmentType.SCOPE);
+        if (scopeId == null) return null;
+        ResourceLocation emptyId = new ResourceLocation("tacz", "empty");
+        if (scopeId.equals(emptyId)) return null;
+        return scopeId;
+    }
+
+    // --- Pitch (vertical) - stored per-scope on player persistent data ---
 
     public static float getPitchOffset(Player player) {
+        ResourceLocation scopeId = getScopeId(player);
+        if (scopeId == null) return 0.0f;
         CompoundTag data = player.getPersistentData();
-        if (data.contains(PITCH_NBT_KEY)) {
-            return data.getFloat(PITCH_NBT_KEY);
-        }
-        return 0.0f;
+        String key = PITCH_PREFIX + scopeId;
+        return data.contains(key) ? data.getFloat(key) : 0.0f;
     }
 
     public static void setPitchOffset(Player player, float offset) {
+        ResourceLocation scopeId = getScopeId(player);
+        if (scopeId == null) return;
         offset = Math.max(MIN_OFFSET, Math.min(MAX_OFFSET, offset));
-        player.getPersistentData().putFloat(PITCH_NBT_KEY, offset);
+        player.getPersistentData().putFloat(PITCH_PREFIX + scopeId, offset);
     }
 
     public static void adjustPitchOffset(Player player, float delta) {
-        float current = getPitchOffset(player);
-        setPitchOffset(player, current + delta);
+        setPitchOffset(player, getPitchOffset(player) + delta);
     }
 
-    // --- Yaw (horizontal) ---
+    // --- Yaw (horizontal) - stored per-scope on player persistent data ---
 
     public static float getYawOffset(Player player) {
+        ResourceLocation scopeId = getScopeId(player);
+        if (scopeId == null) return 0.0f;
         CompoundTag data = player.getPersistentData();
-        if (data.contains(YAW_NBT_KEY)) {
-            return data.getFloat(YAW_NBT_KEY);
-        }
-        return 0.0f;
+        String key = YAW_PREFIX + scopeId;
+        return data.contains(key) ? data.getFloat(key) : 0.0f;
     }
 
     public static void setYawOffset(Player player, float offset) {
+        ResourceLocation scopeId = getScopeId(player);
+        if (scopeId == null) return;
         offset = Math.max(MIN_OFFSET, Math.min(MAX_OFFSET, offset));
-        player.getPersistentData().putFloat(YAW_NBT_KEY, offset);
+        player.getPersistentData().putFloat(YAW_PREFIX + scopeId, offset);
     }
 
     public static void adjustYawOffset(Player player, float delta) {
-        float current = getYawOffset(player);
-        setYawOffset(player, current + delta);
+        setYawOffset(player, getYawOffset(player) + delta);
     }
 
-    // --- Lock state ---
+    // --- Lock state - on player persistent data ---
 
     public static boolean isLocked(Player player) {
-        return player.getPersistentData().getBoolean(LOCK_NBT_KEY);
+        return player.getPersistentData().getBoolean(LOCK_KEY);
     }
 
     public static void setLocked(Player player, boolean locked) {
-        player.getPersistentData().putBoolean(LOCK_NBT_KEY, locked);
+        player.getPersistentData().putBoolean(LOCK_KEY, locked);
     }
 
     // --- Combined ---
@@ -71,7 +92,7 @@ public class TrajectoryData {
         setYawOffset(player, 0.0f);
     }
 
-    // --- Legacy compat (getOffset returns pitch for mixin/backwards compat) ---
+    // --- Legacy compat (delegates to pitch) ---
 
     public static float getOffset(Player player) {
         return getPitchOffset(player);
@@ -86,7 +107,7 @@ public class TrajectoryData {
     }
 
     public static void clearOffset(Player player) {
-        player.getPersistentData().remove(PITCH_NBT_KEY);
+        setPitchOffset(player, 0.0f);
     }
 
     // --- Events ---
@@ -95,22 +116,19 @@ public class TrajectoryData {
     public void onPlayerClone(PlayerEvent.Clone event) {
         CompoundTag orig = event.getOriginal().getPersistentData();
         CompoundTag dest = event.getEntity().getPersistentData();
-        if (orig.contains(PITCH_NBT_KEY)) {
-            dest.putFloat(PITCH_NBT_KEY, orig.getFloat(PITCH_NBT_KEY));
-        }
-        if (orig.contains(YAW_NBT_KEY)) {
-            dest.putFloat(YAW_NBT_KEY, orig.getFloat(YAW_NBT_KEY));
-        }
-        if (orig.contains(LOCK_NBT_KEY)) {
-            dest.putBoolean(LOCK_NBT_KEY, orig.getBoolean(LOCK_NBT_KEY));
+        for (String key : orig.getAllKeys()) {
+            if (key.startsWith(PITCH_PREFIX) || key.startsWith(YAW_PREFIX) || key.equals(LOCK_KEY)) {
+                dest.put(key, orig.get(key));
+            }
         }
     }
 
     @SubscribeEvent
     public void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
         Player player = (Player) event.getEntity();
-        clearOffset(player);
-        player.getPersistentData().remove(YAW_NBT_KEY);
-        player.getPersistentData().remove(LOCK_NBT_KEY);
+        CompoundTag data = player.getPersistentData();
+        data.getAllKeys().removeIf(key ->
+            key.startsWith(PITCH_PREFIX) || key.startsWith(YAW_PREFIX) || key.equals(LOCK_KEY)
+        );
     }
 }

@@ -55,7 +55,6 @@ public class ClientHudRenderer {
 
         StringBuilder sb = new StringBuilder();
 
-        // Pitch line
         if (pitch > 0) {
             sb.append(String.format("Pitch: +%.2f\u00b0 UP", pitch));
         } else if (pitch < 0) {
@@ -64,7 +63,6 @@ public class ClientHudRenderer {
             sb.append("Pitch: 0.00\u00b0 (Flat)");
         }
 
-        // Yaw line
         sb.append("  |  ");
         if (yaw > 0) {
             sb.append(String.format("Yaw: +%.2f\u00b0 RIGHT", yaw));
@@ -74,7 +72,6 @@ public class ClientHudRenderer {
             sb.append("Yaw: 0.00\u00b0 (Center)");
         }
 
-        // Lock indicator
         if (locked) {
             sb.append("  [LOCKED]");
         }

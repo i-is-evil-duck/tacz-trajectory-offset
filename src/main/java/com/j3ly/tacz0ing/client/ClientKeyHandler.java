@@ -53,7 +53,7 @@ public class ClientKeyHandler {
             boolean newLocked = !locked;
             TrajectoryData.setLocked(mc.player, newLocked);
             PacketHandler.INSTANCE.sendToServer(new SetTrajectoryLockPacket(newLocked));
-        } else if (key == GLFW.GLFW_KEY_R && action == GLFW.GLFW_PRESS) {
+        } else if (key == ModConfig.getResetKeyCode() && action == GLFW.GLFW_PRESS) {
             TrajectoryData.clearAllOffsets(mc.player);
             PacketHandler.INSTANCE.sendToServer(new SetTrajectoryOffsetPacket(0.0f, 0.0f, true));
         }
