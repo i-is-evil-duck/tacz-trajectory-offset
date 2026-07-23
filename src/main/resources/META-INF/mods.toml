@@ -5,8 +5,8 @@ license="MIT"
 [[mods]]
 modId="tacz0ing"
 version="${file.jarVersion}"
-displayName="TACZ Trajectory Offset"
-description="Modifies TACZ bullet trajectory with arrow key vertical angle offset."
+displayName="TACZ Scope Zeroing"
+description="Adds per-scope angle adjustment to TaCZ guns. Hold a gun and use your arrow keys to adjust pitch (up/down) and yaw (left/right) to compensate for bullet drop and dial in long-range shots."
 authors="i-is-evil-duck"
 
 [[dependencies.tacz0ing]]
