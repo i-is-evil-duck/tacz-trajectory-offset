@@ -1,6 +1,5 @@
 package com.j3ly.tacz0ing.client;
 
-import com.j3ly.tacz0ing.ModConfig;
 import com.j3ly.tacz0ing.TaczTrajectoryOffset;
 import com.j3ly.tacz0ing.TrajectoryData;
 import com.j3ly.tacz0ing.network.PacketHandler;
@@ -53,11 +52,11 @@ public class ClientKeyHandler {
             TrajectoryData.adjustYawOffset(mc.player, TrajectoryData.STEP);
             sendCurrentOffset(mc);
             ClientHudRenderer.notifyAdjust();
-        } else if (key == ModConfig.getLockKeyCode() && action == GLFW.GLFW_PRESS) {
+        } else if (ClientKeyBindings.lockKey != null && ClientKeyBindings.lockKey.consumeClick()) {
             boolean newLocked = !locked;
             TrajectoryData.setLocked(mc.player, newLocked);
             PacketHandler.INSTANCE.sendToServer(new SetTrajectoryLockPacket(newLocked));
-        } else if (key == ModConfig.getResetKeyCode() && action == GLFW.GLFW_PRESS) {
+        } else if (ClientKeyBindings.resetKey != null && ClientKeyBindings.resetKey.consumeClick()) {
             TrajectoryData.clearAllOffsets(mc.player);
             PacketHandler.INSTANCE.sendToServer(new SetTrajectoryOffsetPacket(0.0f, 0.0f, true));
             ClientHudRenderer.notifyAdjust();

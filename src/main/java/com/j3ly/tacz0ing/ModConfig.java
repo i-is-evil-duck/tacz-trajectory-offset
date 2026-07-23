@@ -14,17 +14,8 @@ public class ModConfig {
     }
 
     public static class Common {
-        public final ForgeConfigSpec.IntValue lockKey;
-        public final ForgeConfigSpec.IntValue resetKey;
-
         public Common(ForgeConfigSpec.Builder builder) {
             builder.push("tacz0ing");
-            lockKey = builder
-                .comment("GLFW key code for the lock key (default 76 = L)")
-                .defineInRange("lockKey", 76, 32, 349);
-            resetKey = builder
-                .comment("GLFW key code for the reset key (default 59 = semicolon ;)")
-                .defineInRange("resetKey", 59, 32, 349);
             builder.pop();
         }
     }
@@ -37,13 +28,5 @@ public class ModConfig {
 
     public static void toggleHud() {
         hudVisible = !hudVisible;
-    }
-
-    public static int getLockKeyCode() {
-        return COMMON.lockKey.get();
-    }
-
-    public static int getResetKeyCode() {
-        return COMMON.resetKey.get();
     }
 }
