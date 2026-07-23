@@ -8,19 +8,19 @@ import net.minecraftforge.network.NetworkEvent;
 import java.util.function.Supplier;
 
 public class SetTrajectoryOffsetPacket {
-    private final float pitchDelta;
-    private final float yawDelta;
+    private final float pitch;
+    private final float yaw;
     private final boolean reset;
 
-    public SetTrajectoryOffsetPacket(float pitchDelta, float yawDelta, boolean reset) {
-        this.pitchDelta = pitchDelta;
-        this.yawDelta = yawDelta;
+    public SetTrajectoryOffsetPacket(float pitch, float yaw, boolean reset) {
+        this.pitch = pitch;
+        this.yaw = yaw;
         this.reset = reset;
     }
 
     public static void encode(SetTrajectoryOffsetPacket msg, FriendlyByteBuf buf) {
-        buf.writeFloat(msg.pitchDelta);
-        buf.writeFloat(msg.yawDelta);
+        buf.writeFloat(msg.pitch);
+        buf.writeFloat(msg.yaw);
         buf.writeBoolean(msg.reset);
     }
 
@@ -35,12 +35,8 @@ public class SetTrajectoryOffsetPacket {
                 if (msg.reset) {
                     TrajectoryData.clearAllOffsets(player);
                 } else {
-                    if (msg.pitchDelta != 0.0f) {
-                        TrajectoryData.adjustPitchOffset(player, msg.pitchDelta);
-                    }
-                    if (msg.yawDelta != 0.0f) {
-                        TrajectoryData.adjustYawOffset(player, msg.yawDelta);
-                    }
+                    TrajectoryData.setPitchOffset(player, msg.pitch);
+                    TrajectoryData.setYawOffset(player, msg.yaw);
                 }
             }
         });

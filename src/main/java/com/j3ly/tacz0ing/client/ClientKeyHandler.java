@@ -36,22 +36,22 @@ public class ClientKeyHandler {
         if (key == GLFW.GLFW_KEY_UP) {
             if (locked) return;
             TrajectoryData.adjustPitchOffset(mc.player, TrajectoryData.STEP);
-            PacketHandler.INSTANCE.sendToServer(new SetTrajectoryOffsetPacket(TrajectoryData.STEP, 0.0f, false));
+            sendCurrentOffset(mc);
             ClientHudRenderer.notifyAdjust();
         } else if (key == GLFW.GLFW_KEY_DOWN) {
             if (locked) return;
             TrajectoryData.adjustPitchOffset(mc.player, -TrajectoryData.STEP);
-            PacketHandler.INSTANCE.sendToServer(new SetTrajectoryOffsetPacket(-TrajectoryData.STEP, 0.0f, false));
+            sendCurrentOffset(mc);
             ClientHudRenderer.notifyAdjust();
         } else if (key == GLFW.GLFW_KEY_LEFT) {
             if (locked) return;
             TrajectoryData.adjustYawOffset(mc.player, -TrajectoryData.STEP);
-            PacketHandler.INSTANCE.sendToServer(new SetTrajectoryOffsetPacket(0.0f, -TrajectoryData.STEP, false));
+            sendCurrentOffset(mc);
             ClientHudRenderer.notifyAdjust();
         } else if (key == GLFW.GLFW_KEY_RIGHT) {
             if (locked) return;
             TrajectoryData.adjustYawOffset(mc.player, TrajectoryData.STEP);
-            PacketHandler.INSTANCE.sendToServer(new SetTrajectoryOffsetPacket(0.0f, TrajectoryData.STEP, false));
+            sendCurrentOffset(mc);
             ClientHudRenderer.notifyAdjust();
         } else if (key == ModConfig.getLockKeyCode() && action == GLFW.GLFW_PRESS) {
             boolean newLocked = !locked;
@@ -62,5 +62,11 @@ public class ClientKeyHandler {
             PacketHandler.INSTANCE.sendToServer(new SetTrajectoryOffsetPacket(0.0f, 0.0f, true));
             ClientHudRenderer.notifyAdjust();
         }
+    }
+
+    private static void sendCurrentOffset(Minecraft mc) {
+        float pitch = TrajectoryData.getPitchOffset(mc.player);
+        float yaw = TrajectoryData.getYawOffset(mc.player);
+        PacketHandler.INSTANCE.sendToServer(new SetTrajectoryOffsetPacket(pitch, yaw, false));
     }
 }
