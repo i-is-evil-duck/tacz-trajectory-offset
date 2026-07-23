@@ -18,9 +18,16 @@ public class ClientHudRenderer {
     private static long lastAdjustTime = 0;
     private static final long DISPLAY_DURATION_MS = 1500;
 
+    public static void notifyAdjust() {
+        lastAdjustTime = System.currentTimeMillis();
+    }
+
     @SubscribeEvent
     public static void onRenderGui(RenderGuiEvent.Post event) {
         if (!ModConfig.isHudVisible()) return;
+
+        long elapsed = System.currentTimeMillis() - lastAdjustTime;
+        if (elapsed > DISPLAY_DURATION_MS) return;
 
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
@@ -31,22 +38,9 @@ public class ClientHudRenderer {
         float pitch = TrajectoryData.getPitchOffset(mc.player);
         float yaw = TrajectoryData.getYawOffset(mc.player);
         boolean locked = TrajectoryData.isLocked(mc.player);
-        long now = System.currentTimeMillis();
 
-        if (pitch != 0.0f || yaw != 0.0f) {
-            lastAdjustTime = now;
-        }
-
-        long elapsed = now - lastAdjustTime;
-        if (elapsed > DISPLAY_DURATION_MS && pitch == 0.0f && yaw == 0.0f && !locked) return;
-
-        float alpha;
-        if (pitch != 0.0f || yaw != 0.0f || locked) {
-            alpha = 1.0f;
-        } else {
-            float remaining = 1.0f - (float)(elapsed) / DISPLAY_DURATION_MS;
-            alpha = Math.max(0.0f, remaining);
-        }
+        float remaining = 1.0f - (float) elapsed / DISPLAY_DURATION_MS;
+        float alpha = Math.max(0.0f, remaining);
         int alphaByte = (int)(alpha * 255) << 24;
 
         GuiGraphics graphics = event.getGuiGraphics();
