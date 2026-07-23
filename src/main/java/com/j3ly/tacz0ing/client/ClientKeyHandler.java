@@ -1,8 +1,10 @@
 package com.j3ly.tacz0ing.client;
 
+import com.j3ly.tacz0ing.ModConfig;
 import com.j3ly.tacz0ing.TaczTrajectoryOffset;
 import com.j3ly.tacz0ing.TrajectoryData;
 import com.j3ly.tacz0ing.network.PacketHandler;
+import com.j3ly.tacz0ing.network.SetTrajectoryLockPacket;
 import com.j3ly.tacz0ing.network.SetTrajectoryOffsetPacket;
 import com.tacz.guns.api.item.IGun;
 import net.minecraft.client.Minecraft;
@@ -29,25 +31,31 @@ public class ClientKeyHandler {
 
         if (action != GLFW.GLFW_PRESS && action != GLFW.GLFW_REPEAT) return;
 
-        float delta = 0.0f;
-        boolean reset = false;
+        boolean locked = TrajectoryData.isLocked(mc.player);
 
-        if (key == GLFW.GLFW_KEY_UP || key == GLFW.GLFW_KEY_RIGHT) {
-            delta = TrajectoryData.STEP;
-        } else if (key == GLFW.GLFW_KEY_DOWN || key == GLFW.GLFW_KEY_LEFT) {
-            delta = -TrajectoryData.STEP;
+        if (key == GLFW.GLFW_KEY_UP) {
+            if (locked) return;
+            TrajectoryData.adjustPitchOffset(mc.player, TrajectoryData.STEP);
+            PacketHandler.INSTANCE.sendToServer(new SetTrajectoryOffsetPacket(TrajectoryData.STEP, 0.0f, false));
+        } else if (key == GLFW.GLFW_KEY_DOWN) {
+            if (locked) return;
+            TrajectoryData.adjustPitchOffset(mc.player, -TrajectoryData.STEP);
+            PacketHandler.INSTANCE.sendToServer(new SetTrajectoryOffsetPacket(-TrajectoryData.STEP, 0.0f, false));
+        } else if (key == GLFW.GLFW_KEY_LEFT) {
+            if (locked) return;
+            TrajectoryData.adjustYawOffset(mc.player, -TrajectoryData.STEP);
+            PacketHandler.INSTANCE.sendToServer(new SetTrajectoryOffsetPacket(0.0f, -TrajectoryData.STEP, false));
+        } else if (key == GLFW.GLFW_KEY_RIGHT) {
+            if (locked) return;
+            TrajectoryData.adjustYawOffset(mc.player, TrajectoryData.STEP);
+            PacketHandler.INSTANCE.sendToServer(new SetTrajectoryOffsetPacket(0.0f, TrajectoryData.STEP, false));
+        } else if (key == ModConfig.getLockKeyCode() && action == GLFW.GLFW_PRESS) {
+            boolean newLocked = !locked;
+            TrajectoryData.setLocked(mc.player, newLocked);
+            PacketHandler.INSTANCE.sendToServer(new SetTrajectoryLockPacket(newLocked));
         } else if (key == GLFW.GLFW_KEY_R && action == GLFW.GLFW_PRESS) {
-            reset = true;
-        } else {
-            return;
-        }
-
-        if (reset) {
-            TrajectoryData.setOffset(mc.player, 0.0f);
-            PacketHandler.INSTANCE.sendToServer(new SetTrajectoryOffsetPacket(0.0f, true));
-        } else {
-            TrajectoryData.adjustOffset(mc.player, delta);
-            PacketHandler.INSTANCE.sendToServer(new SetTrajectoryOffsetPacket(delta, false));
+            TrajectoryData.clearAllOffsets(mc.player);
+            PacketHandler.INSTANCE.sendToServer(new SetTrajectoryOffsetPacket(0.0f, 0.0f, true));
         }
     }
 }

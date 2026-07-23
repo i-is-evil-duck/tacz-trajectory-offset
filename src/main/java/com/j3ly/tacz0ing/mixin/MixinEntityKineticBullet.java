@@ -21,8 +21,9 @@ public class MixinEntityKineticBullet {
     private void taczTrajectory$modifyTrajectory(Entity pShooter, float pX, float pY, float pZ, float pVelocity, Vector2d vector2d, CallbackInfo ci) {
         if (!(pShooter instanceof ServerPlayer player)) return;
 
-        float offset = TrajectoryData.getOffset(player);
-        if (offset == 0.0f) return;
+        float pitchOffset = TrajectoryData.getPitchOffset(player);
+        float yawOffset = TrajectoryData.getYawOffset(player);
+        if (pitchOffset == 0.0f && yawOffset == 0.0f) return;
 
         Entity self = (Entity) (Object) this;
         Vec3 motion = self.getDeltaMovement();
@@ -31,16 +32,18 @@ public class MixinEntityKineticBullet {
 
         double horizontalSpeed = Math.sqrt(motion.x * motion.x + motion.z * motion.z);
         double currentPitch = Math.atan2(-motion.y, horizontalSpeed);
-        double yaw = Math.atan2(motion.z, motion.x);
+        double currentYaw = Math.atan2(motion.z, motion.x);
 
-        double newPitch = currentPitch - (double) offset * Math.PI / 180.0;
+        double newPitch = currentPitch - (double) pitchOffset * Math.PI / 180.0;
+        double newYaw = currentYaw + (double) yawOffset * Math.PI / 180.0;
+
         double newHorizontalSpeed = speed * Math.cos(newPitch);
         double newVy = -speed * Math.sin(newPitch);
 
         self.setDeltaMovement(new Vec3(
-            newHorizontalSpeed * Math.cos(yaw),
+            newHorizontalSpeed * Math.cos(newYaw),
             newVy,
-            newHorizontalSpeed * Math.sin(yaw)
+            newHorizontalSpeed * Math.sin(newYaw)
         ));
     }
 }

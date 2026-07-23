@@ -7,7 +7,7 @@ import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 
 public class PacketHandler {
-    private static final String PROTOCOL_VERSION = "1";
+    private static final String PROTOCOL_VERSION = "2";
     public static final SimpleChannel INSTANCE = NetworkRegistry.newSimpleChannel(
         new ResourceLocation(TaczTrajectoryOffset.MOD_ID, "main"),
         () -> PROTOCOL_VERSION,
@@ -22,6 +22,12 @@ public class PacketHandler {
             .encoder(SetTrajectoryOffsetPacket::encode)
             .decoder(SetTrajectoryOffsetPacket::decode)
             .consumerMainThread(SetTrajectoryOffsetPacket::handle)
+            .add();
+
+        INSTANCE.messageBuilder(SetTrajectoryLockPacket.class, packetId++, NetworkDirection.PLAY_TO_SERVER)
+            .encoder(SetTrajectoryLockPacket::encode)
+            .decoder(SetTrajectoryLockPacket::decode)
+            .consumerMainThread(SetTrajectoryLockPacket::handle)
             .add();
     }
 }

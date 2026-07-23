@@ -1,5 +1,6 @@
 package com.j3ly.tacz0ing.client;
 
+import com.j3ly.tacz0ing.ModConfig;
 import com.j3ly.tacz0ing.TaczTrajectoryOffset;
 import com.j3ly.tacz0ing.TrajectoryData;
 import com.tacz.guns.api.item.IGun;
@@ -19,24 +20,28 @@ public class ClientHudRenderer {
 
     @SubscribeEvent
     public static void onRenderGui(RenderGuiEvent.Post event) {
+        if (!ModConfig.isHudVisible()) return;
+
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
         ItemStack heldItem = mc.player.getMainHandItem();
         if (!(heldItem.getItem() instanceof IGun)) return;
 
-        float offset = TrajectoryData.getOffset(mc.player);
+        float pitch = TrajectoryData.getPitchOffset(mc.player);
+        float yaw = TrajectoryData.getYawOffset(mc.player);
+        boolean locked = TrajectoryData.isLocked(mc.player);
         long now = System.currentTimeMillis();
 
-        if (offset != 0.0f) {
+        if (pitch != 0.0f || yaw != 0.0f) {
             lastAdjustTime = now;
         }
 
         long elapsed = now - lastAdjustTime;
-        if (elapsed > DISPLAY_DURATION_MS && offset == 0.0f) return;
+        if (elapsed > DISPLAY_DURATION_MS && pitch == 0.0f && yaw == 0.0f && !locked) return;
 
         float alpha;
-        if (offset != 0.0f) {
+        if (pitch != 0.0f || yaw != 0.0f || locked) {
             alpha = 1.0f;
         } else {
             float remaining = 1.0f - (float)(elapsed) / DISPLAY_DURATION_MS;
@@ -48,17 +53,41 @@ public class ClientHudRenderer {
         int screenWidth = mc.getWindow().getGuiScaledWidth();
         int screenHeight = mc.getWindow().getGuiScaledHeight();
 
-        String text;
-        int color;
-        if (offset > 0) {
-            text = String.format("Trajectory: +%.2f\u00b0 UP", offset);
-            color = 0x55FF55;
-        } else if (offset < 0) {
-            text = String.format("Trajectory: %.2f\u00b0 DOWN", offset);
-            color = 0xFF5555;
+        StringBuilder sb = new StringBuilder();
+
+        // Pitch line
+        if (pitch > 0) {
+            sb.append(String.format("Pitch: +%.2f\u00b0 UP", pitch));
+        } else if (pitch < 0) {
+            sb.append(String.format("Pitch: %.2f\u00b0 DOWN", pitch));
         } else {
-            text = "Trajectory: 0.00\u00b0 (Flat)";
+            sb.append("Pitch: 0.00\u00b0 (Flat)");
+        }
+
+        // Yaw line
+        sb.append("  |  ");
+        if (yaw > 0) {
+            sb.append(String.format("Yaw: +%.2f\u00b0 RIGHT", yaw));
+        } else if (yaw < 0) {
+            sb.append(String.format("Yaw: %.2f\u00b0 LEFT", yaw));
+        } else {
+            sb.append("Yaw: 0.00\u00b0 (Center)");
+        }
+
+        // Lock indicator
+        if (locked) {
+            sb.append("  [LOCKED]");
+        }
+
+        String text = sb.toString();
+
+        int color;
+        if (locked) {
+            color = 0xFFFF55;
+        } else if (pitch == 0.0f && yaw == 0.0f) {
             color = 0xFFFFFF;
+        } else {
+            color = 0x55FF55;
         }
 
         int textWidth = mc.font.width(text);
